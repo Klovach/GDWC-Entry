@@ -23,9 +23,9 @@ If you're a student looking to participate in the development of Pounce & Portal
 
 ### Prerequisites
 
-- **Basic Game Development Knowledge:** Familiarize yourself with game development concepts, including game engines, scripting, and 2D game design.
+- **Basic Game Development Knowledge:** Familiarize yourself with basic programming principles and the game engine we will be utilizing for this project. We welcome programmers and asset designers of varying experience to contribute, from beginner to advanced. 
 
-- **Git and GitHub:** Make sure you have Git installed on your local machine and have a GitHub account. If you're new to Git and GitHub, consider checking out tutorials to get started.
+- **Git and GitHub:** Make sure you have Git installed on your local machine and have a GitHub account. If you're new to Git and GitHub, consider checking out the tutorial below to get started:  https://www.youtube.com/watch?v=sjlVox4f5Ww
 
 - **Development Environment:** Ensure you have Unity installed and open the project in the correct version: Unity 2022.3 LTS
 
