@@ -40,7 +40,7 @@ git clone https://github.com/your-username/pounce-and-portal.git
 ### Contributing
 Once you have the project files on your machine, you can start contributing to Pounce & Portal. Here's a simplified workflow:
 
-Create a new branch for your work. This is important to prevent merge conflicts. You can do this using the following command:
+Create a new branch for your work. This is important to prevent merge conflicts. You can do so using the following command:
 
 ```bash
 git checkout -b feature/your-feature-name
