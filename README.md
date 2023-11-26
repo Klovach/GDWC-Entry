@@ -70,3 +70,7 @@ We look forward to your contributions and hope you enjoy being a part of the Pou
 - **Co-Director** :
 @MonikerDev
 
+- **Team Leads** :
+@OofityVEVO
+@bucketman84
+
