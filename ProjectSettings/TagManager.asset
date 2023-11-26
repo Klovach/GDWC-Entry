@@ -7,6 +7,10 @@ TagManager:
   - Ground
   - Decor
   - Gateway
+  - Enemy
+  - Point
+  - Trap
+  - Food
   layers:
   - Default
   - TransparentFX
