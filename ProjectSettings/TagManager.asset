@@ -11,6 +11,7 @@ TagManager:
   - Point
   - Trap
   - Food
+  - Portal
   layers:
   - Default
   - TransparentFX

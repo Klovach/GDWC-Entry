@@ -37,7 +37,8 @@ public class PatrolEnemy : Enemy
         HandleDirection(goalPoint);
 
         // Move the enemy towards the goal point
-        transform.position = Vector2.MoveTowards(transform.position, goalPoint.position, speed * Time.deltaTime);
+        transform.position = Vector2.MoveTowards(transform.position, new Vector2(goalPoint.position.x, transform.position.y), speed * Time.deltaTime);
+
 
         // Check the distance between enemy and goal point to trigger the next point
         if (Vector2.Distance(transform.position, goalPoint.position) < 0.2f)

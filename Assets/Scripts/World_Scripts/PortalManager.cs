@@ -11,6 +11,7 @@ public class PortalManager : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
+            Debug.Log("Collide");
             Teleport(other.transform);
         }
     }
@@ -19,9 +20,12 @@ public class PortalManager : MonoBehaviour
     {
         player.position = exitPoint.position;
 
+        Debug.Log("Player called");
+
         Rigidbody2D playerRb = player.GetComponent<Rigidbody2D>();
         if (playerRb != null)
         {
+            Debug.Log("Teleport");
             Vector2 exitDirection = (exitPoint.position - player.position).normalized;
             playerRb.velocity = exitDirection * boostForce;
         }

@@ -25,10 +25,10 @@ public class Collectable : MonoBehaviour
 
     #region Actions
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    void OnTriggerEnter2D(Collider2D coll)
     {
         Debug.Log("Collision happened.");
-        if (collision.gameObject.CompareTag("Player"))
+        if (coll.gameObject.CompareTag("Player"))
         {
             Debug.Log("Player touched collectable collider.");
             if (!isCollected)

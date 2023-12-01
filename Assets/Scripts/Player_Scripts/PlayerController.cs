@@ -4,6 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Formats.Alembic.Importer;
 using UnityEngine.SceneManagement;
+using static UnityEditor.VersionControl.Asset;
 
 
 
@@ -77,6 +78,7 @@ public class PlayerController : MonoBehaviour
         HandleAttackInput();
         HandleVariableJumpHeight();
         HandleJumping();
+        animator.SetInteger("state", (int)state);
         //     HandleFallClamp();
     }
 
@@ -279,38 +281,80 @@ public class PlayerController : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "Enemy":
+
                 if (state == State.attacking)
-                {
-                    break;
-                }
-                
-                health = health - 1;
-                Debug.Log("Current Health: " + health);
-                if (health == 0)
-                {
-                    PerFormDeath(); 
-                }
-                break; 
-            case "Trap":
-                Debug.Log("Current Health: " + health);
-                health = health - 1;
-                if (health == 0)
-                {
-                    PerFormDeath();
-                }
-                break;
-            case "Food":
-                if (health == 3)
                 {
                     break;
                 }
                 else
                 {
-                    health = health + 1;
+                    health = health - 1;
+                    state = State.hurt;
                 }
+
+                Debug.Log("Current Health: " + health);
+
+                if (health == 0)
+                {
+
+                    state = State.dying;
+                    PerFormDeath(); 
+                }
+
                 break; 
+
+            case "Trap":
+
+                Debug.Log("Current Health: " + health);
+
+                if (health == 0)
+                {
+                    state = State.dying;
+                    PerFormDeath();
+                    break;
+
+                }
+
+
+                health--;
+                state = State.hurt;
+                break; 
+               
+
+            case "Food":
+
+                if (health == 3)
+                {
+                    break;
+                }
+
+                else
+                {
+                    health++; 
+                }
+
+                break; 
+
             case "Point":
-                points = points + 1; 
+
+                Debug.Log("Current Points: " + points);
+
+                points++; 
+
+                break;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Debug.Log("Not detected");
+        switch (collision.gameObject.tag)
+        {
+
+            case "Portal":
+          //      state = State.teleporting;
+                Debug.Log(state);
+                    Debug.Log("Telporting");
                 break;
         }
     }
@@ -319,9 +363,13 @@ public class PlayerController : MonoBehaviour
     #region Handle Death
     private void PerFormDeath()
     {
-        state = State.dying; 
-        // Reload Scene 
-        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        state = State.dying;
+        Debug.Log(state);
+          if (animator.GetCurrentAnimatorStateInfo(0).IsName("Dying"))
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+        } 
+    
     }
     #endregion 
 }
