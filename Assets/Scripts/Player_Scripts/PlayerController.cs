@@ -6,7 +6,7 @@ using UnityEngine.Formats.Alembic.Importer;
 using UnityEngine.SceneManagement;
 using static UnityEditor.VersionControl.Asset;
 
-
+//Thank you to Dawnosaur for Acceleration
 
 
 #region Player States 
@@ -41,20 +41,24 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float acceleration = 1f;
     [SerializeField] private float deccelleration = 0.7f;
     [SerializeField] private float velPower = 1f;
+    [SerializeField] private int remainingJumps = 1;
+    [SerializeField] private float coyoteTimeCounter;
+    [SerializeField] private Vector2 boxSize = new Vector2(0.2f, 0.7f);
+    [SerializeField] private float castDistance = 0.2f;
     #endregion
 
 
 
     #region Private Fields
 
-    private int remainingJumps = 1;
+
     private int health = 3; 
     private int points; 
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider2D;
     private SpriteRenderer spriteRenderer;
     private Animator animator;
-    private float coyoteTimeCounter;
+
     private float jumpBufferCounter;
     public bool isAttacking;
 
@@ -79,12 +83,17 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         //Old Movement code
+
         //HandleMovementInput();
+        //HandleJumpBuffer();
+        //HandleCoyoteTime();
+        //HandleVariableJumpHeight();
+
+
+        //Reformatted and smoothed movement
+
         AcceleratingMovementHandler();
-        HandleCoyoteTime();
-        HandleJumpBuffer();
         HandleAttackInput();
-        HandleVariableJumpHeight();
         HandleJumping();
         animator.SetInteger("state", (int)state);
         //     HandleFallClamp();
@@ -185,22 +194,28 @@ public class PlayerController : MonoBehaviour
 
     private void HandleJumping()
     {
+        HandleCoyoteTime();
+        //HandleVariableJumpHeight();
+
         // Handle jumping input and logic. If we have some coyoteTime left, we're grounded, or we have some remaining jumps, we can jump. 
-        if (Input.GetKeyDown(KeyCode.Space) && jumpBufferCounter > 0f & !isAttacking)
+        if (Input.GetKeyDown(KeyCode.Space)  && !isAttacking)
         {
-            if (coyoteTimeCounter > 0f || IsGrounded() || remainingJumps > 0)
+            if (coyoteTimeCounter > 0f || remainingJumps > 0)
             {
-                Jump();
+                Jump(1f);
             }
         }
+        else if (Input.GetKeyUp(KeyCode.Space) && rb.velocity.y > 0f && remainingJumps > 0)
+		{
+            Jump(0.5f);
+		}
     }
 
-    private void Jump()
+    private void Jump(float speedMultiplier)
     {
-
         if (IsGrounded() || remainingJumps > 0)
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            rb.velocity = new Vector2(rb.velocity.x, jumpForce * speedMultiplier);
             remainingJumps--;
             jumpBufferCounter = jumpBufferTime;
 
@@ -215,87 +230,97 @@ public class PlayerController : MonoBehaviour
                 rb.velocity = new Vector2(rb.velocity.x + apexBoost, rb.velocity.y);
             }
         }
-    }
-
-    #endregion
-
-    #region Coyote Time and Jump Buffer
-
-    private void HandleCoyoteTime()
-    {
-        // Our coyote time allows a brief window for jumping after leaving the ground.
-        if (IsGrounded())
-        {
-            coyoteTimeCounter = coyoteTime;
+		else
+		{
             remainingJumps = 1;
-        }
-        else
-        {
-            // Reduce coyote time as time passes when not grounded.
-            coyoteTimeCounter -= Time.deltaTime;
-        }
+		}
     }
 
-    private void HandleJumpBuffer()
-    {
-        // Our jump buffer time allows for delayed jump input to still register.
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            jumpBufferCounter = jumpBufferTime;
-        }
-        else
-        {
-            // Decrease the jump buffer time as time passes.
-            jumpBufferCounter -= Time.deltaTime;
-        }
-    }
+	#endregion
+
+	#region Coyote Time and Jump Buffer
+
+    //Double jump bug is being caused by this in particular
+	private void HandleCoyoteTime()
+	{
+        Debug.Log("Coyote Time is being handled");
+		// Our coyote time allows a brief window for jumping after leaving the ground.
+		if (IsGrounded())
+		{
+			coyoteTimeCounter = coyoteTime;
+			remainingJumps = 1;
+		}
+		else
+		{
+			// Reduce coyote time as time passes when not grounded.
+			coyoteTimeCounter -= Time.deltaTime;
+		}
+	}
 
     #endregion
 
     #region Ground Detection
 
+    //private bool IsGrounded()
+    //{
+    //    // Ground detection logic
+    //    float extraHeight = 0.0001f;
+    //    float rayLength = boxCollider2D.bounds.extents.y + extraHeight;
+
+    //    // Perform a box-shaped raycast directly downward to detect ground.
+    //    // Here's a breakdown of what this line means. Our method takes five parameters.
+    //    // Origin || boxCollider2D.bounds.center: Our origin is our boxCollider2D, which is attachted to our player. We're getting the center of the bounding box.
+    //    // Size || boxCollider2D: Here we're getting the size of our object, which is the bounds of our boxCollider.
+    //    // Angle | 0f: Here we're getting an angle. In our case, our angle isn't offset in any way. We want to look straight down.
+    //    // Direction | Vector2.Down: Here we specify we want to look straight down. 
+    //    // FloatDistance | 0f: Here we specify how far our we want to look. In our case, we want to look as far as the height of our boxCollider plus some additional height/
+    //    // Layer Mask | groundLayerMask: Here we specify the layer we want to look at when we collide, which is our ground layer.
+    //    RaycastHit2D raycastHit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.down, rayLength, groundLayerMask);
+    //    Color rayColor;
+
+    //    // DEBUG ------------------------------
+    //    if (raycastHit.collider != null && raycastHit.normal == Vector2.up)
+    //    {
+    //        rayColor = Color.green;
+    //    }
+    //    else
+    //    {
+    //        rayColor = Color.red;
+    //    }
+
+    //    // Calculate the starting point for the ground detection raycast. 
+    //    Vector3 raycastOrigin = boxCollider2D.bounds.center - new Vector3(0, rayLength / 2f);
+    //    Debug.DrawRay(raycastOrigin, Vector2.down * rayLength, rayColor);
+    //    Debug.DrawRay(raycastOrigin, Vector2.down * rayLength, rayColor);
+
+       
+    //    // -----------------------------------------
+
+    //    // Return whether or not the raycast hit something. If this statement is true, we're grounded! If not, we aren't grounded. 
+    //    return raycastHit.collider != null;
+    //}
+
+    //Much more effecient raycast
     private bool IsGrounded()
-    {
-        // Ground detection logic
-        float extraHeight = 0.01f;
-        float rayLength = boxCollider2D.bounds.extents.y + extraHeight;
+	{
+        if(Physics2D.BoxCast(transform.position, boxSize, 0, -transform.up, castDistance, groundLayerMask))
+		{
+            return true;
+		}
+		else
+		{
+            return false;
+		}
+	}
 
-        // Perform a box-shaped raycast directly downward to detect ground.
-        // Here's a breakdown of what this line means. Our method takes five parameters.
-        // Origin || boxCollider2D.bounds.center: Our origin is our boxCollider2D, which is attachted to our player. We're getting the center of the bounding box.
-        // Size || boxCollider2D: Here we're getting the size of our object, which is the bounds of our boxCollider.
-        // Angle | 0f: Here we're getting an angle. In our case, our angle isn't offset in any way. We want to look straight down.
-        // Direction | Vector2.Down: Here we specify we want to look straight down. 
-        // FloatDistance | 0f: Here we specify how far our we want to look. In our case, we want to look as far as the height of our boxCollider plus some additional height/
-        // Layer Mask | groundLayerMask: Here we specify the layer we want to look at when we collide, which is our ground layer.
-        RaycastHit2D raycastHit = Physics2D.BoxCast(boxCollider2D.bounds.center, boxCollider2D.bounds.size, 0f, Vector2.down, rayLength, groundLayerMask);
-        Color rayColor;
+	private void OnDrawGizmos()
+	{
+        Gizmos.DrawWireCube(transform.position - transform.up * castDistance, boxSize);
+	}
+	#endregion
 
-        // DEBUG ------------------------------
-        if (raycastHit.collider != null && raycastHit.normal == Vector2.up)
-        {
-            rayColor = Color.green;
-        }
-        else
-        {
-            rayColor = Color.red;
-        }
-
-        // Calculate the starting point for the ground detection raycast. 
-        Vector3 raycastOrigin = boxCollider2D.bounds.center - new Vector3(0, rayLength / 2f);
-        Debug.DrawRay(raycastOrigin, Vector2.down * rayLength, rayColor);
-        Debug.DrawRay(raycastOrigin, Vector2.down * rayLength, rayColor);
-
-        //  Debug.Log(raycastHit.collider);
-        // -----------------------------------------
-
-        // Return whether or not the raycast hit something. If this statement is true, we're grounded! If not, we aren't grounded. 
-        return raycastHit.collider != null;
-    }
-    #endregion
-
-    #region Sprite Flipping
-    private void Flip(float horizontalInput)
+	#region Sprite Flipping
+	private void Flip(float horizontalInput)
     {
         if (horizontalInput < 0)
         {
