@@ -22,8 +22,10 @@ public class PlayerController : MonoBehaviour
 {
     #region Serialized Fields
     static public State state;
-    // Speed of the player
-    [SerializeField] private float playerSpeed = 10f;
+    //Base Player Speed
+    [SerializeField] private float baseSpeed = 10f;
+    //Current Speed of the player
+    [SerializeField] private float playerSpeed;
     // Force applied when jumping
     [SerializeField] private float jumpForce = 7f;
     // Time to allow jumping after leaving the ground
@@ -36,6 +38,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float fallClamp = -20f;
     // Get ground layer mask
     [SerializeField] private LayerMask groundLayerMask;
+    [SerializeField] private float acceleration = 1f;
+    [SerializeField] private float deccelleration = 0.7f;
+    [SerializeField] private float velPower = 1f;
     #endregion
 
 
@@ -54,17 +59,18 @@ public class PlayerController : MonoBehaviour
     public bool isAttacking;
 
 
-    #endregion
+	#endregion
 
-    #region Unity Callbacks
+	#region Unity Callbacks
 
 
-    private void Start()
+	private void Start()
     {
 
         InitializeComponents();
 
         state = State.idle;
+        playerSpeed = baseSpeed;
         Debug.Log(state);
     }
 
@@ -72,7 +78,9 @@ public class PlayerController : MonoBehaviour
     // NOTES; Add edge detection next 
     private void Update()
     {
-        HandleMovementInput();
+        //Old Movement code
+        //HandleMovementInput();
+        AcceleratingMovementHandler();
         HandleCoyoteTime();
         HandleJumpBuffer();
         HandleAttackInput();
@@ -98,13 +106,41 @@ public class PlayerController : MonoBehaviour
 
     #region Player Input Handling
 
-    private void HandleAttackInput()
+    private void AcceleratingMovementHandler()
+	{
+        #region Running
+
+        float direction = Input.GetAxis("Horizontal");
+        float targetSpeed = direction * playerSpeed;
+
+        float speedDif = targetSpeed - rb.velocity.x;
+
+        float accelRate = (Mathf.Abs(targetSpeed) > 0.01f) ? acceleration : deccelleration;
+
+        float movement = Mathf.Pow(Mathf.Abs(speedDif) * accelRate, velPower) * Mathf.Sign(speedDif);
+
+        Flip(direction);
+        rb.AddForce(movement * Vector2.right);
+
+		#endregion
+	}
+
+	private void HandleAttackInput()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isAttacking)
         {
             animator.SetTrigger("Attack");
             isAttacking = true;
             state = State.attacking;
+            playerSpeed = baseSpeed / 2;
+            Debug.Log(state);
+        }
+        else if(Input.GetKeyDown(KeyCode.LeftShift) && isAttacking)
+		{
+            animator.SetTrigger("Attack");
+            isAttacking = false;
+            state = State.attacking;
+            playerSpeed = baseSpeed;
             Debug.Log(state);
         }
     }
@@ -150,7 +186,7 @@ public class PlayerController : MonoBehaviour
     private void HandleJumping()
     {
         // Handle jumping input and logic. If we have some coyoteTime left, we're grounded, or we have some remaining jumps, we can jump. 
-        if (Input.GetKeyDown(KeyCode.Space) && jumpBufferCounter > 0f)
+        if (Input.GetKeyDown(KeyCode.Space) && jumpBufferCounter > 0f & !isAttacking)
         {
             if (coyoteTimeCounter > 0f || IsGrounded() || remainingJumps > 0)
             {
