@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -6,63 +7,79 @@ public class PatrolEnemy : Enemy
 {
     #region Fields
 
-    protected Rigidbody2D rb;
-    public List<Transform> points;
-    public int nextID = 0;
-    int idChangeValue = 1;
+    private Rigidbody2D rb;
+    public float patrolRange = 5f; 
     public float speed = 2;
+
+
+    private Vector2 patrolStartPosition;
+    private bool movingRight = true;
+
+
+
+    private bool isHitCooldown = false;
+    private float hitCooldownDuration = 1f; 
+    private float hitCooldownTimer = 0f;
 
     #endregion
 
-
     protected override void Start()
     {
-        base.Start();
         coll = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
+
+        patrolStartPosition = transform.position;
     }
 
     void Update()
     {
-        Movement();
+        Patrol();
     }
 
+    #region Patrol
 
-    #region Movement
-
-    protected void Movement()
+    private void Patrol()
     {
-        Transform goalPoint = points[nextID];
+        float patrolDirection = movingRight ? 1 : -1;
+        Vector2 nextPosition = new Vector2(patrolStartPosition.x + patrolDirection * patrolRange, transform.position.y);
+        transform.position = Vector2.MoveTowards(transform.position, nextPosition, speed * Time.deltaTime);
 
-        HandleDirection(goalPoint);
-
-        // Move the enemy towards the goal point
-        transform.position = Vector2.MoveTowards(transform.position, new Vector2(goalPoint.position.x, transform.position.y), speed * Time.deltaTime);
-
-
-        // Check the distance between enemy and goal point to trigger the next point
-        if (Vector2.Distance(transform.position, goalPoint.position) < 0.2f)
+        if (HasHitObstacle())
         {
-            // Check if we are at the end of the line (make the change -1)
-            if (nextID == points.Count - 1)
-                idChangeValue = -1;
+            if (!isHitCooldown)
+            {
+                
+                movingRight = !movingRight;
+                patrolStartPosition = transform.position;
 
-            // Check if we are at the start of the line (make the change +1)
-            if (nextID == 0)
-                idChangeValue = 1;
-
-            // Apply the change on the nextID
-            nextID += idChangeValue;
+               
+                isHitCooldown = true;
+                hitCooldownTimer = 0f;
+            }
         }
+
+    
+        if (isHitCooldown)
+        {
+            hitCooldownTimer += Time.deltaTime;
+
+           
+            if (hitCooldownTimer >= hitCooldownDuration)
+            {
+                isHitCooldown = false;
+            }
+        }
+
+        transform.localScale = new Vector3(movingRight ? 1 : -1, 1, 1);
     }
 
-    protected void HandleDirection(Transform goalPoint)
+    private bool HasHitObstacle()
     {
-        // Flip the enemy transform to look into the point's direction
-        if (goalPoint.transform.position.x > transform.position.x)
-            transform.localScale = new Vector3(-1, 1, 1);
-        else
-            transform.localScale = new Vector3(1, 1, 1);
+        float raycastDistance = 0.2f;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right * (movingRight ? 1 : -1), raycastDistance);
+
+        Console.WriteLine(hit); 
+        return hit.collider != null;
     }
 
     #endregion
