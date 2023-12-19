@@ -89,7 +89,15 @@ public class BossEnemyController : MonoBehaviour
                 Jump();
             }
 
-            transform.Translate(direction * chaseSpeed * Time.deltaTime);
+            // Check if an obstruction is hit during the chase
+            if (!HasHitObstacle())
+            {
+                transform.Translate(direction * chaseSpeed * Time.deltaTime);
+            }
+            else
+            {
+                StopChasing();
+            }
         }
         else
         {
@@ -98,24 +106,33 @@ public class BossEnemyController : MonoBehaviour
         }
     }
 
+    bool HasHitObstacle()
+    {
+        Vector3 direction = (playerTransform.position - transform.position).normalized;
+        RaycastHit2D hit = Physics2D.Raycast(transform.position, direction, chaseSpeed * Time.deltaTime, LayerMask.GetMask("Ground"));
+
+        return hit.collider != null;
+    }
+
+
     bool IsGrounded()
     {
-        RaycastHit2D groundCheck = Physics2D.Raycast(transform.position, Vector2.down, 0.1f, LayerMask.GetMask("Ground"));
+        RaycastHit2D groundCheck = Physics2D.Raycast(transform.position + Vector3.up * 0.1f, Vector2.down, 0.1f, LayerMask.GetMask("Ground"));
         return groundCheck.collider != null;
     }
 
     void Jump()
     {
         Rigidbody2D rb = GetComponent<Rigidbody2D>();
-        float jumpForce = 3f;
+        float jumpForce = 5f; 
+        float maxDownwardVelocity = -5f; 
 
-      
         if (IsGrounded())
         {
-            rb.velocity = new Vector2(rb.velocity.x, jumpForce);
+            rb.velocity = new Vector2(rb.velocity.x, Mathf.Max(rb.velocity.y, maxDownwardVelocity));
+            rb.AddForce(Vector2.up * jumpForce, ForceMode2D.Impulse);
         }
     }
-
     void StopChasing()
     {
         animator.SetTrigger("Idle");

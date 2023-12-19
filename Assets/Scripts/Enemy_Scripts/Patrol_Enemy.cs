@@ -77,8 +77,6 @@ public class PatrolEnemy : Enemy
     {
         float raycastDistance = 0.2f;
         RaycastHit2D hit = Physics2D.Raycast(transform.position, Vector2.right * (movingRight ? 1 : -1), raycastDistance);
-
-        Console.WriteLine(hit); 
         return hit.collider != null;
     }
 
