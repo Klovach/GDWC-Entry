@@ -5449,7 +5449,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.7244287, y: -0.8695798, z: -2}
+ m_LocalPosition: {x: -4.72327785, y: -0.8695798, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6002,7 +6002,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 766651685}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.41, y: -1.47, z: -2}
+  m_LocalPosition: {x: -9.746, y: -1.367, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -13719,7 +13719,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1681243771}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -9.91, y: -1.47, z: 0}
+  m_LocalPosition: {x: -10.246, y: -1.367, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -13827,6 +13827,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 353fec60550384b43be3383480af6456, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  baseSpeed: 10
   playerSpeed: 10
   jumpForce: 10
   coyoteTime: 0.5
@@ -13836,6 +13837,13 @@ MonoBehaviour:
   groundLayerMask:
     serializedVersion: 2
     m_Bits: 8
+  acceleration: 1
+  deccelleration: 0.7
+  velPower: 1
+  remainingJumps: 2
+  coyoteTimeCounter: 0
+  boxSize: {x: 0.05, y: 0.1}
+  castDistance: 0.5
   isAttacking: 0
 --- !u!1 &1891063875
 GameObject:
