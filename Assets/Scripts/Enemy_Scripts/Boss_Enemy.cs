@@ -171,7 +171,7 @@ public class BossEnemyController : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             Debug.Log("Player touched enemy collider.");
-            if ((isAlive && PlayerController.state == State.attacking))
+            if ((isAlive && PlayerController.state == State.attacking || PlayerController.state == State.falling))
             {
                 Debug.Log("Player successfully attacked enemy.");
                 animator.SetTrigger("Death");

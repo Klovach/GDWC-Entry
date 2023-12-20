@@ -78,7 +78,9 @@ public class PlayerController : MonoBehaviour
         HandleAttackInput();
         HandleVariableJumpHeight();
         HandleJumping();
+        HandleIdling(); 
         animator.SetInteger("state", (int)state);
+       
         //     HandleFallClamp();
     }
 
@@ -147,6 +149,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+  
     private void HandleJumping()
     {
         // Handle jumping input and logic. If we have some coyoteTime left, we're grounded, or we have some remaining jumps, we can jump. 
@@ -156,6 +159,11 @@ public class PlayerController : MonoBehaviour
             {
                 Jump();
             }
+        }
+        if (!IsGrounded() && rb.velocity.y < 0)
+        {
+            state = State.falling;
+            Debug.Log(state);
         }
     }
 
@@ -211,6 +219,15 @@ public class PlayerController : MonoBehaviour
         {
             // Decrease the jump buffer time as time passes.
             jumpBufferCounter -= Time.deltaTime;
+        }
+    }
+
+    private void HandleIdling()
+    {
+        if (IsGrounded() && rb.velocity.y >= 0)
+        {
+            state = State.idle;
+            Debug.Log(state);
         }
     }
 
@@ -281,27 +298,33 @@ public class PlayerController : MonoBehaviour
         switch (collision.gameObject.tag)
         {
             case "Enemy":
-
                 if (state == State.attacking)
                 {
                     break;
                 }
+                else if (state == State.falling)
+                {
+                    // Player is falling, apply bounce effect
+                    rb.velocity = new Vector2(rb.velocity.x, 8f);
+                    state = State.jumping;
+                    break;
+                }
                 else
                 {
+                    // Player is not falling, take damage and enter hurt state
                     health = health - 1;
                     state = State.hurt;
+
+                    Debug.Log("Current Health: " + health);
+
+                    if (health == 0)
+                    {
+                        state = State.dying;
+                        PerformDeath();
+                    }
+                    break;
                 }
-
-                Debug.Log("Current Health: " + health);
-
-                if (health == 0)
-                {
-
-                    state = State.dying;
-                    PerFormDeath(); 
-                }
-
-                break; 
+                
 
             case "Trap":
 
@@ -310,7 +333,7 @@ public class PlayerController : MonoBehaviour
                 if (health == 0)
                 {
                     state = State.dying;
-                    PerFormDeath();
+                    PerformDeath();
                     break;
 
                 }
@@ -361,7 +384,7 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region Handle Death
-    private void PerFormDeath()
+    private void PerformDeath()
     {
         state = State.dying;
         Debug.Log(state);

@@ -89,6 +89,13 @@ public class FlyEnemy : Enemy
         {
             Debug.Log("Collision happened!");
             obstacleHit = true;
+            if ((isAlive && PlayerController.state == State.attacking) || PlayerController.state == State.falling)
+            {
+                Debug.Log("Player successfully attacked enemy.");
+                animator.SetTrigger("Death");
+                isAlive = false;
+                Destroy(this.gameObject, 0.4f);
+            }
         }
         else
         {

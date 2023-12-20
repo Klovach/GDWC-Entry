@@ -27,6 +27,7 @@ public class PatrolEnemy : Enemy
     {
         coll = GetComponent<Collider2D>();
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
 
         patrolStartPosition = transform.position;
     }
