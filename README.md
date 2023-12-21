@@ -64,13 +64,7 @@ If you have any questions or need assistance, feel free to contact us or reach o
 We look forward to your contributions and hope you enjoy being a part of the Pounce & Portal development team! 🐾✨
 
 ## Contributors
-- **Director** :
 @Klovach
-
-- **Co-Director** :
 @MonikerDev
-
-- **Team Leads** :
 @OofityVEVO
-@bucketman84
 
