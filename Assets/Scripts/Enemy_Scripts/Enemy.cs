@@ -8,7 +8,6 @@ public class Enemy : MonoBehaviour
 
     protected Animator animator;
     protected Collider2D coll;
-  //  protected AudioSource death;
 
     protected bool isAlive = true;
     #endregion
@@ -18,7 +17,6 @@ public class Enemy : MonoBehaviour
 
         coll = GetComponent<Collider2D>();
         animator = GetComponent<Animator>();
-   //     death = GetComponent<AudioSource>();
     
 }
 
@@ -35,6 +33,7 @@ public class Enemy : MonoBehaviour
                 Debug.Log("Player successfully attacked enemy.");
                 animator.SetTrigger("Death");
                 isAlive = false;
+                SoundManager.Instance.PlayDeathSound(); 
                 Destroy(this.gameObject, 0.3f);
             }
         }

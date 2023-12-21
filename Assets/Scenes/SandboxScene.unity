@@ -7067,7 +7067,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 519420028}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -4.637565, y: -0.8695798, z: -2}
+  m_LocalPosition: {x: -4.6375737, y: -0.8695798, z: -2}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -7802,6 +7802,60 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 3915514897928579852, guid: 2f948fccdf41df247a1cc064efd43795, type: 3}
   m_PrefabInstance: {fileID: 8824336813363115197}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1308431413
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1308431415}
+  - component: {fileID: 1308431414}
+  m_Layer: 0
+  m_Name: SoundManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1308431414
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308431413}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 577140d134aaf324f8c1a7ec25d45f53, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  clickSound: {fileID: 8300000, guid: edae8a199c1540e4ab11086d1d18915d, type: 3}
+  deathSound: {fileID: 8300000, guid: ccd4401f876e1b44a95a5574e3e71c27, type: 3}
+  pickupSound: {fileID: 8300000, guid: 7f9403ad262715f4994f66bc8d445f42, type: 3}
+  landSound: {fileID: 8300000, guid: b26132de33c123d4d8ff61769ff7ca56, type: 3}
+  jumpSound: {fileID: 8300000, guid: 15cc3253f4a084645bc357c894da7ffe, type: 3}
+  attackSound: {fileID: 8300000, guid: 9f8b8c755ea3f0a488cef0df62a7e7ef, type: 3}
+  teleportSound: {fileID: 8300000, guid: 8d25f782fcd55384fa1c33310d47f083, type: 3}
+  smashSound: {fileID: 8300000, guid: 73dad77685ad7f245a328b263f8b4844, type: 3}
+  level1Music: {fileID: 8300000, guid: 64cbb266466d1c44fb542e0745a6ba0f, type: 3}
+  level2Music: {fileID: 8300000, guid: 5cf13efbbb01af745a23d9f8e07c0d62, type: 3}
+--- !u!4 &1308431415
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1308431413}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.512511, y: 1.0734136, z: 0.012299323}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 10
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1358842248
 GameObject:
   m_ObjectHideFlags: 0

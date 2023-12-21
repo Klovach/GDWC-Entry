@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 
 public class SoundManager : MonoBehaviour
@@ -25,6 +26,10 @@ public class SoundManager : MonoBehaviour
     // Background music for levels:
     public AudioClip level1Music;
     public AudioClip level2Music;
+    public AudioClip level3Music;
+    public AudioClip level4Music;
+    public AudioClip level5Music;
+    public AudioClip level6Music;
 
     // AudioSource components for sound effects and background music:
     private AudioSource sfxAudioSource;
@@ -111,6 +116,8 @@ public class SoundManager : MonoBehaviour
 
     public void PlayLevelMusic(int level)
     {
+        // Reset
+        bgmAudioSource.Stop();
         AudioClip levelMusic = GetLevelMusic(level);
 
         if (levelMusic != null)
@@ -118,14 +125,23 @@ public class SoundManager : MonoBehaviour
             bgmAudioSource.clip = levelMusic;
             bgmAudioSource.Play();
         }
+        else
+        {
+            Debug.Log(GetLevelMusic(level));
+        }
     }
 
     public void StopLevelMusic()
     {
         bgmAudioSource.Stop();
     }
+
     private void PlaySound(AudioClip clip)
     {
+        if (sfxAudioSource.isPlaying)
+        {
+            sfxAudioSource.Stop();
+        }
         sfxAudioSource.PlayOneShot(clip);
     }
 
@@ -137,6 +153,14 @@ public class SoundManager : MonoBehaviour
                 return level1Music;
             case 2:
                 return level2Music;
+            case 3:
+                return level3Music;
+            case 4:
+                return level4Music;
+            case 5:
+                return level5Music;
+            case 6:
+                return level6Music;
             default:
                 return null;
         }
