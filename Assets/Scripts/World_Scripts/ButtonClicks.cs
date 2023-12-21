@@ -7,7 +7,18 @@ public class ButtonClicks : MonoBehaviour
 {
     public void StartGame()
     {
-        SceneManager.LoadScene("Level1");
+        // All counting in an array starts at zero. However, the scene count in build settings does not, so we subtract by one. 
+        int nextSceneIndex = 0; 
+
+        if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
+        {
+            SceneManager.LoadScene(nextSceneIndex);
+            SoundManager.Instance.PlayLevelMusic(nextSceneIndex);
+        }
+        else
+        {
+            Debug.Log("No more levels past this point!");
+        }
     }
 
     public void Exit()

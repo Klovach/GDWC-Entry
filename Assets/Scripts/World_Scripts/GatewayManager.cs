@@ -27,6 +27,8 @@ public class WorldBoundraries : MonoBehaviour
     {
         playerCollider = player.GetComponent<Collider2D>();
         gatewayCollider = gateway.GetComponent<Collider2D>();
+
+        SoundManager.Instance.PlayLevelMusic(SceneManager.GetActiveScene().buildIndex + 1);
     }
 
     private void Update()
@@ -49,15 +51,18 @@ public class WorldBoundraries : MonoBehaviour
             Debug.Log("Touching");
 
             // All counting in an array starts at zero. However, the scene count in build settings does not, so we subtract by one. 
-            if (SceneManager.GetActiveScene().buildIndex < SceneManager.sceneCountInBuildSettings - 1)
+            int nextSceneIndex = SceneManager.GetActiveScene().buildIndex + 1;
+
+            if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+                SceneManager.LoadScene(nextSceneIndex);
+                SoundManager.Instance.PlayLevelMusic(nextSceneIndex);
             }
             else
             {
                 Debug.Log("No more levels past this point!");
             }
         }
+    }
 
     }
-}
