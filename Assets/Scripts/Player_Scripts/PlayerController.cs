@@ -43,7 +43,7 @@ public class PlayerController : MonoBehaviour
     #region Private Fields
 
     private int remainingJumps = 1;
-    private int health = 3; 
+    private int health = 1; 
     private int points; 
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider2D;
@@ -63,7 +63,7 @@ public class PlayerController : MonoBehaviour
     {
 
         InitializeComponents();
-
+        health = 1; 
         state = State.idle;
         Debug.Log(state);
     }
@@ -107,6 +107,7 @@ public class PlayerController : MonoBehaviour
             animator.SetTrigger("Attack");
             isAttacking = true;
             state = State.attacking;
+            SoundManager.Instance.PlayAttackSound(); 
             Debug.Log(state);
         }
     }
@@ -160,8 +161,8 @@ public class PlayerController : MonoBehaviour
                 Jump();
             }
         }
-        if (!IsGrounded() && rb.velocity.y < 0)
-        {
+        if (!IsGrounded() && rb.velocity.y < -0.1f)
+            {
             state = State.falling;
             Debug.Log(state);
         }
@@ -175,7 +176,7 @@ public class PlayerController : MonoBehaviour
             rb.velocity = new Vector2(rb.velocity.x, jumpForce);
             remainingJumps--;
             jumpBufferCounter = jumpBufferTime;
-
+            SoundManager.Instance.PlayJumpSound(); 
             // If we're currently in the air (in other words, our y velocity is greater than 0)....
             if (rb.velocity.y < 0)
             {
@@ -314,10 +315,11 @@ public class PlayerController : MonoBehaviour
                     // Player is not falling, take damage and enter hurt state
                     health = health - 1;
                     state = State.hurt;
+                    SoundManager.Instance.PlayDeathSound();
 
                     Debug.Log("Current Health: " + health);
 
-                    if (health == 0)
+                    if (health <= 0)
                     {
                         state = State.dying;
                         PerformDeath();
@@ -338,7 +340,7 @@ public class PlayerController : MonoBehaviour
 
                 }
 
-
+                SoundManager.Instance.PlayDeathSound();
                 health--;
                 state = State.hurt;
                 break; 
@@ -356,13 +358,20 @@ public class PlayerController : MonoBehaviour
                     health++; 
                 }
 
+                SoundManager.Instance.PlayPickupSound();
                 break; 
 
             case "Point":
 
-                Debug.Log("Current Points: " + points);
+             
 
-                points++; 
+               SoundManager.Instance.PlayPickupSound();
+                points++;
+
+
+                Debug.Log("Current Points: " + points);
+                UIManager.Instance.UpdatePointsDisplay(points);
+
 
                 break;
         }
@@ -388,11 +397,7 @@ public class PlayerController : MonoBehaviour
     {
         state = State.dying;
         Debug.Log(state);
-          if (animator.GetCurrentAnimatorStateInfo(0).IsName("Dying"))
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        } 
-    
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
     #endregion 
 }
