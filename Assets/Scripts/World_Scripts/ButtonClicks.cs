@@ -8,8 +8,7 @@ public class ButtonClicks : MonoBehaviour
     public void StartGame()
     {
         // All counting in an array starts at zero. However, the scene count in build settings does not, so we subtract by one. 
-        int nextSceneIndex = 0;
-        SoundManager.Instance.PlayClickSound();
+        int nextSceneIndex = 0; 
 
         if (nextSceneIndex < SceneManager.sceneCountInBuildSettings)
         {
@@ -25,8 +24,6 @@ public class ButtonClicks : MonoBehaviour
     public void Exit()
     {
         //Only need this in final build
-        SoundManager.Instance.StopLevelMusic();
-        SoundManager.Instance.PlayClickSound();  
         Application.Quit();
 
         //This makes it work in editor

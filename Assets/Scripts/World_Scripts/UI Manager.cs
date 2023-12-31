@@ -26,14 +26,13 @@ public class UIManager : MonoBehaviour
         }
     }
 
- 
     public void UpdatePointsDisplay(int points)
     {
-        pointsText.text = points.ToString();
+        pointsText.text = "Points: " + points.ToString();
     }
 
     public void UpdateHealthDisplay(int health)
     {
-        healthText.text = health.ToString();
+        pointsText.text = "Health: " + health.ToString();
     }
 }
