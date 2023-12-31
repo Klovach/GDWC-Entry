@@ -13,10 +13,10 @@ public enum BossAnimationState
 
 public class BossEnemyController : MonoBehaviour
 {
-    public int maxHealth = 2;
-    private int currentHealth;
+    public int currentHealth = 1; 
 
-    public GameObject portalPrefab;
+    private SpriteRenderer spriteRenderer;
+    public GameObject gatewayPrefab;
     public Transform portalSpawnPoint;
     protected Animator animator;
     protected Collider2D coll;
@@ -27,48 +27,62 @@ public class BossEnemyController : MonoBehaviour
     public float rotationSpeed = 3f;
     public float chaseRange = 10f;
     protected bool isAlive = true;
+    protected bool isTouchingPlayer = false;
+
+    private float damageCooldown = 0.3f; // Adjust the cooldown duration as needed
+    private float damageCooldownTimer = 0f;
 
     void Start()
     {
-        currentHealth = maxHealth;
        
 
-        // Get player transform this way for Portal later.
         playerTransform = GameObject.FindGameObjectWithTag("Player").transform;
         rb = GetComponent<Rigidbody2D>();
 
         coll = GetComponent<Collider2D>();
         animator = GetComponent<Animator>();
+        spriteRenderer = GetComponent<SpriteRenderer>();  // Add this line
     }
 
     void Update()
     {
         // Check if the player is within the chase range
-
         Vector3 direction = (playerTransform.position - transform.position).normalized;
+        float distanceToPlayer = Vector3.Distance(transform.position, playerTransform.position);
 
+        // Update the damage cooldown timer
+        if (damageCooldownTimer > 0)
+        {
+            damageCooldownTimer -= Time.deltaTime;
+        }
 
-        if (Vector3.Distance(transform.position, playerTransform.position) <= chaseRange)
+        if (distanceToPlayer <= chaseRange && !isTouchingPlayer)
         {
             ChasePlayer();
-            HandleDirection(direction); 
+            HandleDirection(direction);
         }
         else
         {
             StopChasing();
+
+            // If player is outside a certain distance, consider them not touching
+            if (distanceToPlayer > 2f)
+            {
+                isTouchingPlayer = false;
+            }
         }
-       
     }
+
 
     void HandleDirection(Vector3 direction)
     {
         if (direction.x > 0)
         {
-            transform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(1.5f, 1.5f, 1);
         }
         else if (direction.x < 0)
         {
-            transform.localScale = new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(-1.5f, 1.5f, 1);
         }
     }
 
@@ -83,13 +97,13 @@ public class BossEnemyController : MonoBehaviour
 
         if ((playerTransform.position.y > transform.position.y && Mathf.Abs(playerTransform.position.x - transform.position.x) < chaseRange) || hit.collider == null)
         {
-            // If the player is above the enemy within range OR there is no ground, jump: 
+            // If the player is above the enemy within range OR there is no ground, jump:
             if (IsGrounded())
             {
                 Jump();
             }
 
-            // Check if an obstruction is hit during the chase
+           
             if (!HasHitObstacle())
             {
                 transform.Translate(direction * chaseSpeed * Time.deltaTime);
@@ -140,30 +154,60 @@ public class BossEnemyController : MonoBehaviour
 
 
     // FOR LATER 
-    public void TakeDamage(int damage)
+    public void TakeDamage()
     {
-
-        // PUSH BACK 
-        currentHealth -= damage;
-        Vector2 pushDirection = -transform.right; 
-        float movementAmount = 10f * Time.deltaTime;
-        Vector2 newPosition = (Vector2)transform.position + pushDirection * movementAmount;
-        transform.position = newPosition;
-
-        animator.SetTrigger("Hurt");
-
-        if (currentHealth <= 0)
+        Debug.Log("Take damage is called");
+        Debug.Log(damageCooldownTimer); 
+        // Check if the damage cooldown timer has elapsed
+        if (damageCooldownTimer <= 0)
         {
-            Die();
+
+            StartCoroutine(FlashEnemy());
+            // PUSH BACK
+            currentHealth -= 1;
+
+            SoundManager.Instance.PlayDeathSound();
+            animator.SetTrigger("Hurt");
+
+
+            if (currentHealth <= 0)
+            {
+                Die();
+            }
+
+            // Reset the damage cooldown timer
+            damageCooldownTimer = damageCooldown;
         }
+    
+}
+
+
+    private IEnumerator FlashEnemy()
+    {
+        Debug.Log("Called flash enemy");
+        float flashDuration = 0.1f;
+        int numFlashes = Mathf.FloorToInt(flashDuration / (2 * flashDuration));
+
+        for (int i = 0; i < numFlashes; i++)
+        {
+            spriteRenderer.color = Color.red;
+            yield return new WaitForSeconds(flashDuration);
+            spriteRenderer.color = Color.white;
+            yield return new WaitForSeconds(flashDuration);
+        }
+
+        spriteRenderer.color = Color.white; // Ensure the color is reset even if the loop doesn't finish
+        Debug.Log("Flash complete");
     }
 
- 
 
-    void Die()
+    void SpawnPortal()
     {
-
-        // Spawn the portal
+        if (portalSpawnPoint != null)
+        {
+            // Spawn the portal
+            Instantiate(gatewayPrefab, portalSpawnPoint.position, portalSpawnPoint.rotation);
+        }
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -171,14 +215,25 @@ public class BossEnemyController : MonoBehaviour
         if (collision.gameObject.CompareTag("Player"))
         {
             Debug.Log("Player touched enemy collider.");
+            isTouchingPlayer = true;
+            Debug.Log(isAlive);
+            Debug.Log(PlayerController.state); 
             if ((isAlive && PlayerController.state == State.attacking || PlayerController.state == State.falling))
             {
-                Debug.Log("Player successfully attacked enemy.");
-                animator.SetTrigger("Death");
-                isAlive = false;
-                Destroy(this.gameObject, 0.4f);
+                TakeDamage();
             }
         }
+
+    }
+
+    void Die()
+    {
+        animator.SetTrigger("Death");
+        isAlive = false;
+        SoundManager.Instance.PlayDeathSound();
+        SpawnPortal();
+        Destroy(this.gameObject, 0.4f);
+
     }
 
     public void PerformAttack()
