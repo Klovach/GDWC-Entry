@@ -78,11 +78,11 @@ public class BossEnemyController : MonoBehaviour
     {
         if (direction.x > 0)
         {
-            transform.localScale = new Vector3(3, 3, 1);
+            transform.localScale = new Vector3(1.5f, 1.5f, 1);
         }
         else if (direction.x < 0)
         {
-            transform.localScale = new Vector3(-3, 3, 1);
+            transform.localScale = new Vector3(-1.5f, 1.5f, 1);
         }
     }
 

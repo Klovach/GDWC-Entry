@@ -1697,6 +1697,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d61c85be4ec074e9f3c3832f4e9f1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parallaxFactor: 0.2
 --- !u!1001 &23295901
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -7619,7 +7620,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d61c85be4ec074e9f3c3832f4e9f1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-<<<<<<< HEAD
   parallaxFactor: 0.4
 --- !u!1 &1127429604
 GameObject:
@@ -7764,9 +7764,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 17
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-=======
-  parallaxFactor: 0
->>>>>>> main
 --- !u!1001 &1167848340
 PrefabInstance:
   m_ObjectHideFlags: 0
