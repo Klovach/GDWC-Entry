@@ -23,13 +23,15 @@ public class FallingPlatform : MonoBehaviour
     // If the platform will fall at a constant velocity
     [SerializeField] private bool constVelocity = true;
 
+    // If the platform will fall when spawned
+    [SerializeField] private bool isFalling = false;
+
     [SerializeField] private Rigidbody2D rb;
 
     #endregion
 
     #region Private Fields
 
-    private bool isFalling = false;
     private bool isShaking = false;
 
     #endregion

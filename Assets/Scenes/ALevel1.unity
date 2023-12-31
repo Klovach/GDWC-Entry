@@ -1697,6 +1697,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d61c85be4ec074e9f3c3832f4e9f1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parallaxFactor: 0
 --- !u!1001 &23295901
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11370,7 +11371,7 @@ Transform:
   m_GameObject: {fileID: 937916732}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 16.51, y: -1.5, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 369415556}
@@ -11683,6 +11684,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f4ed3ee5472d9843a1112f43139654c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parallaxCamera: {fileID: 519420034}
 --- !u!1001 &1099120783
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -11836,7 +11838,7 @@ Transform:
   m_GameObject: {fileID: 1123201388}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 26.49, y: -1.5, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 369415556}
@@ -12087,6 +12089,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26d61c85be4ec074e9f3c3832f4e9f1f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  parallaxFactor: 0
 --- !u!1001 &1167848340
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -12496,7 +12499,7 @@ Transform:
   m_GameObject: {fileID: 1358842248}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -9.9, y: -1.52, z: 0}
-  m_LocalScale: {x: 3, y: 3, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
