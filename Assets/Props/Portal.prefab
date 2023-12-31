@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 348888680993233803}
   - component: {fileID: 1082849198349961640}
-  - component: {fileID: 439298298941843269}
   - component: {fileID: 396333607428598849}
   m_Layer: 0
   m_Name: Portal
@@ -32,7 +31,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 10
+  m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &1082849198349961640
 SpriteRenderer:
@@ -86,20 +85,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &439298298941843269
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7624418336310131168}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1e488286a40330f459d95fc9728099df, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  exitPoint: {fileID: 0}
-  boostForce: 10
 --- !u!61 &396333607428598849
 BoxCollider2D:
   m_ObjectHideFlags: 0

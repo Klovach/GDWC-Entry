@@ -42,8 +42,11 @@ public class PlayerController : MonoBehaviour
 
     #region Private Fields
 
+    private float invincibilityDuration = 0.4f; 
+    private float invincibilityTimer = 0f;
+    private bool isInvincible = false;
     private int remainingJumps = 1;
-    private int health = 1; 
+    private int health = 4; 
     private int points; 
     private Rigidbody2D rb;
     private BoxCollider2D boxCollider2D;
@@ -51,8 +54,13 @@ public class PlayerController : MonoBehaviour
     private Animator animator;
     private float coyoteTimeCounter;
     private float jumpBufferCounter;
-    public bool isAttacking;
 
+    // AttackVariables 
+    private float attackTimer = 0.2f;
+    private float timer = 0f;
+
+    public bool isAttacking;
+    public bool isTeleporting; 
 
     #endregion
 
@@ -63,25 +71,40 @@ public class PlayerController : MonoBehaviour
     {
 
         InitializeComponents();
-        health = 1; 
-        state = State.idle;
-        Debug.Log(state);
+        health = 4; 
+       
+        UIManager.Instance.UpdateHealthDisplay(health);
+        UIManager.Instance.UpdatePointsDisplay(points);
     }
 
 
     // NOTES; Add edge detection next 
     private void Update()
     {
+        if (PortalManager.Instance.isActivePortal())
+        {
+            state = State.teleporting;
+            animator.SetInteger("state", (int)state);
+        }
+
+
         HandleMovementInput();
         HandleCoyoteTime();
         HandleJumpBuffer();
-        HandleAttackInput();
-        HandleVariableJumpHeight();
-        HandleJumping();
-        HandleIdling(); 
-        animator.SetInteger("state", (int)state);
-       
-        //     HandleFallClamp();
+            HandleAttackInput();
+
+        // Prioritize attacking over other states
+        if (isAttacking)
+        {
+            HandleAttack();
+        }
+        else
+        {
+            HandleVariableJumpHeight();
+            HandleJumping();
+            HandleIdling();
+            // HandleFallClamp();
+        }
     }
 
     #endregion
@@ -100,19 +123,43 @@ public class PlayerController : MonoBehaviour
 
     #region Player Input Handling
 
+
+
     private void HandleAttackInput()
     {
-        if (Input.GetKeyDown(KeyCode.LeftShift))
+        if (Input.GetKey(KeyCode.RightControl) && !isAttacking)
         {
-            animator.SetTrigger("Attack");
-            isAttacking = true;
-            state = State.attacking;
-            SoundManager.Instance.PlayAttackSound(); 
-            Debug.Log(state);
+            Vector2 attackImpulse = new Vector2(2f, 5f); 
+            rb.velocity = attackImpulse;
+            Attack();
         }
     }
 
+    private void Attack()
+    {
+        isAttacking = true;
+        state = State.attacking;
+        animator.SetInteger("state", (int)state);
+        SoundManager.Instance.PlayAttackSound();
+    }
 
+
+    private void HandleAttack()
+    {
+        if (isAttacking)
+        {
+            timer += Time.deltaTime;
+            if (timer >= attackTimer)
+            {
+                timer = 0;
+                isAttacking = false;
+                state = State.idle;
+                animator.SetInteger("state", (int)state);
+
+              
+            }
+        }
+    }
     // In Maintenance 
     private void HandleFallClamp()
     {
@@ -161,13 +208,16 @@ public class PlayerController : MonoBehaviour
                 Jump();
             }
         }
-        if (!IsGrounded() && rb.velocity.y < -0.1f)
+        if (!IsGrounded() && rb.velocity.y < 0 && state != State.teleporting)
             {
             state = State.falling;
             Debug.Log(state);
         }
+        else if (IsGrounded() && state != State.falling && !isAttacking)
+        {
+           state = State.idle; // Only set to idle if grounded and not falling
+        }
     }
-
     private void Jump()
     {
 
@@ -209,6 +259,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
+    
     private void HandleJumpBuffer()
     {
         // Our jump buffer time allows for delayed jump input to still register.
@@ -222,14 +274,16 @@ public class PlayerController : MonoBehaviour
             jumpBufferCounter -= Time.deltaTime;
         }
     }
-
+     
     private void HandleIdling()
-    {
-        if (IsGrounded() && rb.velocity.y >= 0)
+    {   if (IsGrounded() && rb.velocity.y <= 0 && !isAttacking && health != 0)
         {
             state = State.idle;
             Debug.Log(state);
+            animator.SetInteger("state", (int)state);
         }
+
+      
     }
 
     #endregion
@@ -268,10 +322,9 @@ public class PlayerController : MonoBehaviour
         Debug.DrawRay(raycastOrigin, Vector2.down * rayLength, rayColor);
         Debug.DrawRay(raycastOrigin, Vector2.down * rayLength, rayColor);
 
-        //  Debug.Log(raycastHit.collider);
-        // -----------------------------------------
-
+        
         // Return whether or not the raycast hit something. If this statement is true, we're grounded! If not, we aren't grounded. 
+        Debug.Log("Grounded: " +  raycastHit.collider  + "Player State : " + state);
         return raycastHit.collider != null;
     }
     #endregion
@@ -296,6 +349,10 @@ public class PlayerController : MonoBehaviour
     #region Collision Handling
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        // Check this condition first. By checking this first, we save time by exiting the method early. 
+        if (isInvincible)
+            return; 
+
         switch (collision.gameObject.tag)
         {
             case "Enemy":
@@ -303,24 +360,29 @@ public class PlayerController : MonoBehaviour
                 {
                     break;
                 }
-                else if (state == State.falling)
+                else if (state == State.falling || state == State.teleporting)
                 {
-                    // Player is falling, apply bounce effect
+                    // Player is falling, apply bounce effect after making contact with enemy. 
                     rb.velocity = new Vector2(rb.velocity.x, 8f);
-                    state = State.jumping;
+               //     state = State.jumping;
                     break;
                 }
                 else
                 {
-                    // Player is not falling, take damage and enter hurt state
-                    health = health - 1;
-                    state = State.hurt;
+               
+
+                    TakeDamage();
+                  
+
+                    UIManager.Instance.UpdateHealthDisplay(health); 
                     SoundManager.Instance.PlayDeathSound();
+                    
 
                     Debug.Log("Current Health: " + health);
 
                     if (health <= 0)
                     {
+                        health = 0; 
                         state = State.dying;
                         PerformDeath();
                     }
@@ -332,20 +394,56 @@ public class PlayerController : MonoBehaviour
 
                 Debug.Log("Current Health: " + health);
 
-                if (health == 0)
+                TakeDamage();
+                SoundManager.Instance.PlayDeathSound();
+                UIManager.Instance.UpdateHealthDisplay(health);
+                // Player is not falling, take damage and enter hurt state
+
+                if (health <= 0)
                 {
+
+                    health = 0;
                     state = State.dying;
                     PerformDeath();
                     break;
 
                 }
 
-                SoundManager.Instance.PlayDeathSound();
-                health--;
-                state = State.hurt;
-                break; 
-               
+             
+                break;
 
+            default:
+                Debug.Log("Unhandled tag: " + collision.gameObject.tag);
+                isTeleporting = false; 
+                break;
+        }
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        Debug.Log("Not detected");
+     
+            switch (collision.gameObject.tag)
+        {
+
+            case "Portal":
+                if (!PortalManager.Instance.isActivePortal())
+                {
+                    SoundManager.Instance.PlayTeleportSound();
+                    HandlePortalCollision(collision);
+                    
+                }
+                else
+                {
+                    Debug.Log("Portal on cooldown");
+                }
+                break;
+
+
+            case "Gateway":
+                SoundManager.Instance.PlayTeleportSound();
+                PortalManager.Instance.LoadNextLevel(); 
+                break; 
             case "Food":
 
                 if (health == 3)
@@ -355,49 +453,121 @@ public class PlayerController : MonoBehaviour
 
                 else
                 {
-                    health++; 
+                    health++;
                 }
 
                 SoundManager.Instance.PlayPickupSound();
-                break; 
+                break;
 
             case "Point":
 
-             
-
-               SoundManager.Instance.PlayPickupSound();
+                SoundManager.Instance.PlayPickupSound();
                 points++;
 
 
-                Debug.Log("Current Points: " + points);
                 UIManager.Instance.UpdatePointsDisplay(points);
 
 
                 break;
-        }
-    }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        Debug.Log("Not detected");
-        switch (collision.gameObject.tag)
-        {
 
-            case "Portal":
-          //      state = State.teleporting;
-                Debug.Log(state);
-                    Debug.Log("Telporting");
+         
+            default:
+                Debug.Log("Unhandled tag: " + collision.gameObject.tag);
                 break;
         }
     }
     #endregion
 
+    private void HandlePortalCollision(Collider2D collision)
+    {
+        Portal entryPortal = collision.GetComponent<Portal>();
+        Portal exitPortal = entryPortal.linkedPortal; 
+        if (entryPortal != null)
+        {
+            PortalManager.Instance.Teleport(transform, entryPortal, exitPortal);
+        
+
+            Debug.Log(state);
+            Debug.Log("Teleporting");
+        }
+    }
+
     #region Handle Death
     private void PerformDeath()
     {
         state = State.dying;
+        animator.SetInteger("state", (int)state);
         Debug.Log(state);
+     
+        // Start a coroutine to wait for the death animation to finish.
+        StartCoroutine(WaitForDeathAnimation());
+    }
+
+    private IEnumerator WaitForDeathAnimation()
+    {
+        // Wait for the duration of the death animation.
+        yield return new WaitForSeconds(1f);
+
+        // Reload the scene after the animation is complete.
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    private void TakeDamage()
+    {
+        if (!isInvincible && state != State.falling)
+        {
+            health--;
+
+            // Set invincibility
+            isInvincible = true;
+            invincibilityTimer = invincibilityDuration;
+
+            // Flash the player to indicate invincibility
+            StartCoroutine(FlashPlayer());
+
+            state = State.hurt;
+            UIManager.Instance.UpdateHealthDisplay(health);
+            SoundManager.Instance.PlayDeathSound();
+ 
+
+            if (health <= 0)
+            {
+                state = State.dying;
+                PerformDeath();
+            }
+
+            isInvincible = false; 
+        }
+    }
+
+    private IEnumerator FlashPlayer()
+    {
+
+        float flashDuration = 0.1f;
+        int numFlashes = Mathf.FloorToInt(invincibilityDuration / (2 * flashDuration));
+
+
+        for (int i = 0; i < numFlashes; i++)
+        {
+
+            spriteRenderer.color = Color.red;
+            yield return new WaitForSeconds(flashDuration);
+            spriteRenderer.color = Color.white;
+            yield return new WaitForSeconds(flashDuration);
+        }
+
+        if (isInvincible)
+        {
+            invincibilityTimer -= Time.deltaTime;
+            if (invincibilityTimer <= 0)
+            {
+                isInvincible = false;
+                spriteRenderer.color = Color.white; // Reset to the original color
+            }
+        }
+
+        spriteRenderer.color = Color.white; // Ensure the color is reset even if the loop doesn't finish
     }
     #endregion 
 }
